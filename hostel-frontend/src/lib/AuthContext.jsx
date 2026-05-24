@@ -16,7 +16,7 @@ const sendWelcomeEmail = async (name, email) => {
   try {
     await emailjs.send(
       "service_0ijybjr",
-      "template_pjf8q6f",
+      "template_i7uu453",
       {
         user_name: name || "User",
         user_email: email,
