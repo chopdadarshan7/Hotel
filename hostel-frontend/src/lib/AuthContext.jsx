@@ -15,7 +15,7 @@ import emailjs from '@emailjs/browser';
 const sendWelcomeEmail = async (name, email) => {
   try {
     await emailjs.send(
-      "service_cmyo5yk",
+      "service_0ijybjr",
       "template_pjf8q6f",
       {
         user_name: name || "User",
