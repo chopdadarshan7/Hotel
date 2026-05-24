@@ -21,7 +21,7 @@ const sendWelcomeEmail = async (name, email) => {
         user_name: name || "User",
         user_email: email,
       },
-      "wSEmQMkJpAhvizi2V"
+      "G_ttUpjWBNFyMZqx8"
     );
   } catch (error) {
     console.error("EmailJS Error:", error);
