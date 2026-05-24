@@ -10,6 +10,23 @@ import {
   signUpWithEmail,
 } from "../firebase/services";
 import { buildAppUser } from "./authUser";
+import emailjs from '@emailjs/browser';
+
+const sendWelcomeEmail = async (name, email) => {
+  try {
+    await emailjs.send(
+      "service_cmyo5yk",
+      "template_pjf8q6f",
+      {
+        user_name: name || "User",
+        user_email: email,
+      },
+      "wSEmQMkJpAhvizi2V"
+    );
+  } catch (error) {
+    console.error("EmailJS Error:", error);
+  }
+};
 
 const AuthContext = createContext(null);
 
@@ -71,6 +88,7 @@ export function AuthProvider({ children }) {
     setUser(appUser);
     setShowAuth(false);
     showToast(`Welcome, ${appUser.displayName}! 🎉`, "success");
+    sendWelcomeEmail(appUser.displayName, appUser.email);
     navigate(appUser.isAdmin ? "/admin" : "/dashboard");
   };
 
@@ -82,6 +100,7 @@ export function AuthProvider({ children }) {
     setUser(appUser);
     setShowAuth(false);
     showToast(`Welcome back, ${appUser.displayName}!`, "success");
+    sendWelcomeEmail(appUser.displayName, appUser.email);
     navigate(appUser.isAdmin ? "/admin" : "/dashboard");
   };
 
@@ -93,6 +112,7 @@ export function AuthProvider({ children }) {
     setUser(appUser);
     setShowAuth(false);
     showToast(`Welcome, ${appUser.displayName}!`, "success");
+    sendWelcomeEmail(appUser.displayName, appUser.email);
     navigate("/dashboard");
   };
 
