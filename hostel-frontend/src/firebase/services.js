@@ -30,6 +30,20 @@ function requireFirebase() {
 
 const col = (name) => collection(db, name);
 
+async function callDb(promise, errorMessage = "Firestore connection timeout! Please verify if Firestore Database is created/enabled in your Firebase Console.") {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(errorMessage));
+    }, 4000);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 // ─── AUTH ───────────────────────────────────────────────────
 
 export async function signUpWithEmail(email, password, displayName) {
@@ -38,12 +52,12 @@ export async function signUpWithEmail(email, password, displayName) {
   if (displayName) {
     await updateProfile(cred.user, { displayName });
   }
-  await setDoc(doc(db, "profiles", cred.user.uid), {
+  await callDb(setDoc(doc(db, "profiles", cred.user.uid), {
     full_name: displayName || email.split("@")[0],
     email: email.toLowerCase(),
     role: "guest",
     created_at: serverTimestamp(),
-  });
+  }));
   return cred.user;
 }
 
@@ -61,7 +75,7 @@ export async function signInWithGoogle() {
     || cred.user.email?.split("@")[0]
     || "User";
 
-  await setDoc(
+  await callDb(setDoc(
     doc(db, "profiles", cred.user.uid),
     {
       full_name: name,
@@ -70,7 +84,7 @@ export async function signInWithGoogle() {
       role: "guest",
     },
     { merge: true },
-  );
+  ));
   return cred.user;
 }
 
@@ -81,7 +95,7 @@ export async function signOutUser() {
 
 export async function fetchUserProfile(uid) {
   requireFirebase();
-  const snap = await getDoc(doc(db, "profiles", uid));
+  const snap = await callDb(getDoc(doc(db, "profiles", uid)));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
@@ -89,7 +103,7 @@ export async function fetchUserProfile(uid) {
 
 export async function getRooms() {
   requireFirebase();
-  const snap = await getDocs(query(col("rooms"), orderBy("price_per_night", "asc")));
+  const snap = await callDb(getDocs(query(col("rooms"), orderBy("price_per_night", "asc"))));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
@@ -129,7 +143,7 @@ export async function deleteRoom(roomId) {
 
 export async function getGallery() {
   requireFirebase();
-  const snap = await getDocs(query(col("gallery"), orderBy("created_at", "desc")));
+  const snap = await callDb(getDocs(query(col("gallery"), orderBy("created_at", "desc"))));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 

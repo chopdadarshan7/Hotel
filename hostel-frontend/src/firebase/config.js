@@ -12,6 +12,8 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+console.log("VITE_FIREBASE_CONFIG:", firebaseConfig);
+
 export const hasFirebaseEnv = Boolean(
   firebaseConfig.apiKey
   && firebaseConfig.projectId
@@ -27,7 +29,7 @@ let googleProvider = null;
 if (hasFirebaseEnv) {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
-  db = getFirestore(app);
+  db = getFirestore(app, "default");
   storage = getStorage(app);
   googleProvider = new GoogleAuthProvider();
 }
